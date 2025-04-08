@@ -1,0 +1,60 @@
+﻿using BackgammonServer.Network;
+
+namespace BackgammonServer.Managers
+{
+    internal class RoomsManager
+    {
+        private EncryptedCommunication m_SecureNetworkManager;
+        private List<Room> m_Rooms;
+        private int m_NumberOfWaitingPlayers = 0;
+
+        private Queue<string> m_PlayersWaiting;
+        private GameManager gameManager;
+
+        public RoomsManager(EncryptedCommunication secureNetworkManager)
+        {
+            m_SecureNetworkManager = secureNetworkManager;
+            secureNetworkManager.OnMessageReceive += ProcessClientMessage;
+            m_PlayersWaiting = new Queue<string>();
+        }
+
+        private void ProcessClientMessage(string message, string ip)
+        {
+            string[] splitMessage = message.Split(',');
+
+            if (splitMessage[0] == "InSearchForGame")
+            {
+                if (m_NumberOfWaitingPlayers == 0)
+                {
+                    m_NumberOfWaitingPlayers++;
+                    m_PlayersWaiting.Enqueue(ip);
+                    m_SecureNetworkManager.SendMessage("Wait,", ip);
+                }
+                else if (m_NumberOfWaitingPlayers == 1)
+                {
+                    m_PlayersWaiting.Enqueue(ip);
+                    CreateRoom();
+                    m_NumberOfWaitingPlayers = 0;
+                }
+            }
+            else if (splitMessage[0] == "SwitchTurn")
+            {
+                gameManager.SwitchTurn(splitMessage[1]);
+            }
+            else if (splitMessage[0] == "State")
+            {
+                gameManager.BroadcastToRoom(message);
+            }
+        }
+
+        private void CreateRoom()
+        {
+            var players = new List<string>();
+
+            players.Add(m_PlayersWaiting.Dequeue());
+            players.Add(m_PlayersWaiting.Dequeue());
+
+            gameManager = new GameManager(m_SecureNetworkManager, players);     
+        }
+    }
+}
