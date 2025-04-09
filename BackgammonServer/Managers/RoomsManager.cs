@@ -22,32 +22,45 @@ namespace BackgammonServer.Managers
         {
             string[] splitMessage = message.Split(',');
 
-            if (splitMessage[0] == "InSearchForGame")
+
+            switch (splitMessage[0])
             {
-                if (m_NumberOfWaitingPlayers == 0)
-                {
-                    m_NumberOfWaitingPlayers++;
-                    m_PlayersWaiting.Enqueue(ip);
-                    m_SecureNetworkManager.SendMessage("Wait,", ip);
-                }
-                else if (m_NumberOfWaitingPlayers == 1)
-                {
-                    m_PlayersWaiting.Enqueue(ip);
-                    CreateRoom();
-                    m_NumberOfWaitingPlayers = 0;
-                }
-            }
-            else if (splitMessage[0] == "SwitchTurn")
-            {
-                gameManager.SwitchTurn(splitMessage[1]);
-            }
-            else if (splitMessage[0] == "State")
-            {
-                gameManager.BroadcastToRoom(message);
+                case "InSearchForGame":
+                    {
+                        if (m_NumberOfWaitingPlayers == 0)
+                        {
+                            m_NumberOfWaitingPlayers++;
+                            m_PlayersWaiting.Enqueue(ip);
+                            m_SecureNetworkManager.SendMessage("Wait,", ip);
+                        }
+                        else if (m_NumberOfWaitingPlayers == 1)
+                        {
+                            m_PlayersWaiting.Enqueue(ip);
+                            CreateRoom();
+                            m_NumberOfWaitingPlayers = 0;
+                        }
+                        break;
+                    }
+
+
+                case "SwitchTurn":
+                    {
+                        {
+                            gameManager.SwitchTurn(splitMessage[1]);
+                        }
+                        break;
+
+                    }
+
+                case "State":
+                    {
+                        gameManager.BroadcastToRoom(message);
+                        break;
+                    }
+                    
             }
         }
-
-        private void CreateRoom()
+            private void CreateRoom()
         {
             var players = new List<string>();
 
