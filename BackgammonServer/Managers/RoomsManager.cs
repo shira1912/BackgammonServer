@@ -57,7 +57,12 @@ namespace BackgammonServer.Managers
                         gameManager.BroadcastToRoom(message);
                         break;
                     }
-                    
+
+                case "Dice":
+                    {
+                        gameManager.BroadcastToRoom(message);
+                        break;
+                    }
             }
         }
             private void CreateRoom()
