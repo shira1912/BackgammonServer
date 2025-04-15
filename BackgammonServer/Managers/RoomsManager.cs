@@ -63,16 +63,21 @@ namespace BackgammonServer.Managers
                         gameManager.BroadcastToRoom(message);
                         break;
                     }
+                case "Win":
+                    {
+                        gameManager.BroadcastToRoom(message);
+                        break;
+                    }
             }
         }
-            private void CreateRoom()
+        private void CreateRoom()
         {
             var players = new List<string>();
 
             players.Add(m_PlayersWaiting.Dequeue());
             players.Add(m_PlayersWaiting.Dequeue());
 
-            gameManager = new GameManager(m_SecureNetworkManager, players);     
+            gameManager = new GameManager(m_SecureNetworkManager, players);
         }
     }
 }
