@@ -60,5 +60,29 @@ namespace BackgammonServer.DataBase
             }
             else { return false; }
         }
+
+        public void resetPasswordByEmail(string email, string newPassword)
+        {
+            command.CommandText = "UPDATE Users SET password = '" + newPassword + "' WHERE email = '" + email + "'";
+            connection.Open();
+            command.Connection = connection;
+            int x = command.ExecuteNonQuery(); // executes the statement. returns the number of rows affected
+            connection.Close();
+
+        }
+
+        public bool IsEmailExist(string email)
+        { // gets a username and checks if it's exists in the table
+            command.CommandText = " SELECT COUNT(email) FROM Users WHERE email='" + email + "'";
+            connection.Open();
+            command.Connection = connection;
+            int x = (int)command.ExecuteScalar(); // executes the statement. returns the result
+            connection.Close();
+            if (x > 0)
+            {
+                return true;
+            }
+            else { return false; }
+        }
     }
 }

@@ -1,10 +1,12 @@
-﻿using BackgammonServer.Network;
+﻿using BackgammonServer.DataBase;
+using BackgammonServer.Network;
 
 namespace BackgammonServer.Managers
 {
     internal class RoomsManager
     {
         private EncryptedCommunication m_SecureNetworkManager;
+        private ConnectionToUserDataBase connectionToDatabase; 
         private List<Room> m_Rooms;
         private int m_NumberOfWaitingPlayers = 0;
 
@@ -68,6 +70,21 @@ namespace BackgammonServer.Managers
                         gameManager.BroadcastToRoom(message);
                         break;
                     }
+                case "ResetPassword":
+                    {
+                        connectionToDatabase.resetPasswordByEmail(splitMessage[1], splitMessage[2]);
+                        m_SecureNetworkManager.SendMessage("ResetPassword, successful", ip);
+                        break;
+                    }
+                case "IsEmailExists":
+                {
+                        if (connectionToDatabase.IsEmailExist(splitMessage[1]))
+                        {
+                            m_SecureNetworkManager.SendMessage("IsEmailExists, true", ip);
+                        }
+                        break;
+                }
+
             }
         }
         private void CreateRoom()
