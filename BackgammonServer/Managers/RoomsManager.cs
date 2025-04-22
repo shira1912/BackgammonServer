@@ -6,6 +6,8 @@ namespace BackgammonServer.Managers
     internal class RoomsManager
     {
         private EncryptedCommunication m_SecureNetworkManager;
+        private ConnectionToUserDataBase _db;
+
         private ConnectionToUserDataBase connectionToDatabase; 
         private List<Room> m_Rooms;
         private int m_NumberOfWaitingPlayers = 0;
@@ -13,9 +15,11 @@ namespace BackgammonServer.Managers
         private Queue<string> m_PlayersWaiting;
         private GameManager gameManager;
 
-        public RoomsManager(EncryptedCommunication secureNetworkManager)
+
+        public RoomsManager(ConnectionToUserDataBase db, EncryptedCommunication secureNetworkManager)
         {
             m_SecureNetworkManager = secureNetworkManager;
+            _db = db;
             secureNetworkManager.OnMessageReceive += ProcessClientMessage;
             m_PlayersWaiting = new Queue<string>();
         }
@@ -72,15 +76,20 @@ namespace BackgammonServer.Managers
                     }
                 case "ResetPassword":
                     {
-                        connectionToDatabase.resetPasswordByEmail(splitMessage[1], splitMessage[2]);
-                        m_SecureNetworkManager.SendMessage("ResetPassword, successful", ip);
+                        _db.resetPasswordByEmail(splitMessage[1], splitMessage[2]);
+                        m_SecureNetworkManager.SendMessage("ResetPassword,successful", ip);
                         break;
                     }
                 case "IsEmailExists":
                 {
-                        if (connectionToDatabase.IsEmailExist(splitMessage[1]))
+                        if (_db.IsEmailExist(splitMessage[1]))
                         {
-                            m_SecureNetworkManager.SendMessage("IsEmailExists, true", ip);
+                            m_SecureNetworkManager.SendMessage("IsEmailExists,true", ip);
+                        }
+                        else
+                        {
+                            m_SecureNetworkManager.SendMessage("IsEmailExists,false", ip);
+
                         }
                         break;
                 }

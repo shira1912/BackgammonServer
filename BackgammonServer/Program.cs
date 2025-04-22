@@ -13,7 +13,7 @@ namespace BackgammonServer
             communication.Connect();
 
             var logInManager = new LogInSignUpManager(connection, communication);
-            var roomsManager = new RoomsManager(communication);
+            var roomsManager = new RoomsManager(connection, communication);
         }
     }
 }

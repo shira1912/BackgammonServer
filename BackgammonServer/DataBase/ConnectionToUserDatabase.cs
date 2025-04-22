@@ -73,7 +73,7 @@ namespace BackgammonServer.DataBase
 
         public bool IsEmailExist(string email)
         { // gets a username and checks if it's exists in the table
-            command.CommandText = " SELECT COUNT(email) FROM Users WHERE email='" + email + "'";
+            command.CommandText = " SELECT COUNT(*) FROM Users WHERE email='" + email + "'";
             connection.Open();
             command.Connection = connection;
             int x = (int)command.ExecuteScalar(); // executes the statement. returns the result
