@@ -9,10 +9,13 @@ namespace BackgammonServer.Managers
         private ConnectionToUserDataBase _db;
 
         private ConnectionToUserDataBase connectionToDatabase; 
-        private List<Room> m_Rooms;
+        private static List<Room> m_Rooms = new List<Room>();
+        private static List<GameManager> games = new List<GameManager>();
         private int m_NumberOfWaitingPlayers = 0;
 
         private Queue<string> m_PlayersWaiting;
+        private Dictionary<string, int> m_Clients = new Dictionary<string, int>();
+        private int roomId = 0;
         private GameManager gameManager;
 
 
@@ -33,6 +36,7 @@ namespace BackgammonServer.Managers
             {
                 case "InSearchForGame":
                     {
+
                         if (m_NumberOfWaitingPlayers == 0)
                         {
                             m_NumberOfWaitingPlayers++;
@@ -52,7 +56,12 @@ namespace BackgammonServer.Managers
                 case "SwitchTurn":
                     {
                         {
-                            gameManager.SwitchTurn(splitMessage[1]);
+                            string nextPlayer = "1";
+                            if (splitMessage[1] == "1")
+                            {
+                                nextPlayer = "2";
+                            }
+                            games[m_Clients[ip]].BroadcastToRoom("Turn," + nextPlayer);
                         }
                         break;
 
@@ -60,18 +69,21 @@ namespace BackgammonServer.Managers
 
                 case "State":
                     {
-                        gameManager.BroadcastToRoom(message);
+                        games[m_Clients[ip]].BroadcastToRoom(message);
                         break;
                     }
 
                 case "Dice":
                     {
-                        gameManager.BroadcastToRoom(message);
+                        games[m_Clients[ip]].BroadcastToRoom(message);
                         break;
                     }
                 case "Win":
                     {
-                        gameManager.BroadcastToRoom(message);
+                        int roomID = m_Clients[ip];
+                        games[roomID].BroadcastToRoom(message);
+                        removePlayer(roomID);
+                        games.Remove(games[roomID]);
                         break;
                     }
                 case "ResetPassword":
@@ -103,7 +115,26 @@ namespace BackgammonServer.Managers
             players.Add(m_PlayersWaiting.Dequeue());
             players.Add(m_PlayersWaiting.Dequeue());
 
-            gameManager = new GameManager(m_SecureNetworkManager, players);
+            var room = new Room(players[0], players[1]);
+            m_Rooms.Add(room);
+
+            roomId = m_Rooms.Count - 1;
+            m_Clients.Add(players[0], roomId);
+            m_Clients.Add(players[1], roomId);
+
+            games.Add(new GameManager(m_SecureNetworkManager, players));
+
+        }
+
+        private void removePlayer(int roomId)
+        {
+            foreach (string client in m_Clients.Keys)
+            {
+                if (m_Clients[client] == roomId)
+                {
+                    m_Clients.Remove(client);
+                }
+            }
         }
     }
 }

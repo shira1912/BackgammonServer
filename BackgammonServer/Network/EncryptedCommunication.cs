@@ -1,4 +1,5 @@
-﻿using DataProtocols;
+﻿using BackgammonServer.Managers;
+using DataProtocols;
 using Encryption;
 using Newtonsoft.Json;
 
@@ -15,6 +16,7 @@ namespace BackgammonServer.Network
         public void Connect()
         {
             m_NetworkManager = new NetworkManager();
+
             m_Clients = new Dictionary<string, ClientData>();
 
             m_NetworkManager.OnMessageReceive += OnMessageReceiveFromClient;

@@ -20,16 +20,26 @@ namespace BackgammonServer.Managers
             string[] splitMessage = message.Split(',');
             switch (splitMessage[0])
             {
-                case "SignUp":
+                case "ValidSignUp":
                     {
                         if (_db.IsUserNameExists(splitMessage[1]))
                         {
-                            _encryptedCommunication.SendMessage("SignUp,false", ip);
+                            _encryptedCommunication.SendMessage("SignUp,false,username", ip);
                             break;
                         }
+                        if (_db.IsEmailExist(splitMessage[5]))
+                        {
+                            _encryptedCommunication.SendMessage("SignUp,false,mail", ip);
+                            break;
+                        }
+                        _encryptedCommunication.SendMessage("ValidSignUp", ip);
+                        break;
 
+                    }
+                case "SignUp":
+                    {
                         _db.InsertNewUser(splitMessage[1], splitMessage[2], splitMessage[3], splitMessage[4], splitMessage[5],
-                                        splitMessage[6], splitMessage[7]);
+                                                                splitMessage[6], splitMessage[7]);
                         _encryptedCommunication.SendMessage("SignUp,true", ip);
                         break;
                     }

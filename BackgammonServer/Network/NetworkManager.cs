@@ -15,7 +15,7 @@ namespace BackgammonServer.Network
         public event Action<string, string> OnMessageReceive;
 
         private const int k_PortNo = 5000;
-        private const string k_IpAddress = "127.0.0.1";
+        //private const string k_IpAddress = "127.0.0.1";
         private const int k_NumberOfUserConnected = 2;
 
         private List<ChatClient> m_AllClients = new List<ChatClient>();
@@ -25,12 +25,12 @@ namespace BackgammonServer.Network
 
         public void Connect()
         {
-            System.Net.IPAddress localAdd = System.Net.IPAddress.Parse(k_IpAddress);
+            System.Net.IPAddress localAdd = System.Net.IPAddress.Any;
 
             m_Listener = new TcpListener(localAdd, k_PortNo);
 
             Console.WriteLine("Simple TCP Server");
-            Console.WriteLine("Listening to ip {0} port: {1}", k_IpAddress, k_PortNo);
+            Console.WriteLine("Listening to ip {0} port: {1}", "Any", k_PortNo);
             Console.WriteLine("Server is ready.");
 
             m_Listener.Start();
@@ -46,14 +46,6 @@ namespace BackgammonServer.Network
             while (true)
             {  
                 AddNewClient(m_Listener);
-            }
-        }
-
-        public void Broadcast(string str)
-        {
-            foreach (var item in m_AllClients)
-            {
-                item.SendMessage(str);
             }
         }
 
